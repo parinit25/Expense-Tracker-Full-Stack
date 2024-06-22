@@ -8,3 +8,10 @@ export const userSignupAction = createAsyncThunk(
     console.log(response);
   }
 );
+export const userLoginAction = createAsyncThunk(
+  "userLoginAction",
+  async (newUserData) => {
+    const response = await apiAuthService.userLogin(newUserData);
+    console.log(response);
+  }
+);

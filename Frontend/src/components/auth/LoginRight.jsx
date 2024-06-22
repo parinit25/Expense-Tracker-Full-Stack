@@ -2,16 +2,22 @@ import React, { Fragment, useState } from "react";
 import styles from "../../css/login.module.css";
 import "../../index.css";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { userLoginAction } from "../../store/actions/asyncAuthActions";
 
 const LoginRight = () => {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
+  const dispatch = useDispatch();
+  const [formData, setFormData] = useState({
+    emailId: "",
+    password: "",
+  });
   const handleLogin = (e) => {
     e.preventDefault();
-    localStorage.setItem("authToken", "qwertyuioplkjhgfdsazxcvbnm1234567890");
-    navigate("/");
+    dispatch(userLoginAction(formData));
+  };
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
   };
   return (
     <Fragment>
@@ -24,22 +30,20 @@ const LoginRight = () => {
             <ion-icon name="person-outline"></ion-icon>
             <input
               type="email"
+              name="emailId"
               placeholder="Email"
               className={styles["login-input"]}
-              onChange={(event) => {
-                setEmail(event.target.value);
-              }}
+              onChange={handleChange}
             />
           </div>
           <div className={styles["input-box"]}>
             <ion-icon name="lock-closed-outline"></ion-icon>
             <input
               type="password"
+              name="password"
               placeholder="Password"
               className={styles["login-input"]}
-              onChange={(event) => {
-                setPassword(event.target.value);
-              }}
+              onChange={handleChange}
             />
           </div>
           <div>

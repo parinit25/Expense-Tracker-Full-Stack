@@ -12,5 +12,13 @@ class apiAuthServices {
       throw error;
     }
   };
+  userLogin = async (userData) => {
+    try {
+      const response = await ApiHelper.post("/auth/login", userData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 export const apiAuthService = apiAuthServices.getInstance();

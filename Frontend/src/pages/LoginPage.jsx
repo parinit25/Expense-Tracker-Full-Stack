@@ -4,6 +4,7 @@ import LoginLeft from "../components/auth/LoginLeft";
 import LoginRight from "../components/auth/LoginRight";
 
 const LoginPage = () => {
+
   return (
     <Fragment>
       <section className={styles["section-login"]}>
