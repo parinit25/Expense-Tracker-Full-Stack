@@ -85,7 +85,7 @@
 .login-input {
   font-family: sans-serif;
   border: 1px solid #aeaeae;
-  padding: 1.2rem 1rem 0.5rem 1.2rem;
+  padding: 1rem 0.5rem 1rem 0.5rem;
   border-radius: 5px;
   outline: none;
   width: 100%;
@@ -93,13 +93,27 @@
 
 .login-input::placeholder {
   font-family: "Poppins", sans-serif;
-  vertical-align: middle;
+  /* vertical-align: middle; */
 }
 
+.login-input option {
+  font-family: "Poppins", sans-serif;
+  border: 1px solid #aeaeae;
+  padding: 1.2rem 1rem 0.5rem 1.2rem;
+  border-radius: 5px;
+  outline: none;
+  width: 100%;
+}
+
+.login-input option:focus {
+  border: 1px solid #227e72;
+  outline: none; /* Ensure no outline */
+}
 .login-input:focus {
   border: 1px solid #227e72;
   outline: none; /* Ensure no outline */
 }
+
 .submit-btn {
   display: inline-block;
   font-size: 1.6rem;

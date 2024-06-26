@@ -1,4 +1,7 @@
-import { userSignupAction } from "../actions/asyncAuthActions";
+import {
+  getUserInfoAction,
+  userSignupAction,
+} from "../actions/asyncAuthActions";
 
 import { createSlice } from "@reduxjs/toolkit";
 
@@ -9,11 +12,22 @@ const initialState = {
 const userSlice = createSlice({
   name: "user",
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    setUser(state, action) {
+      state.user = action.payload;
+    },
+    clearUser(state, action) {
+      state.user = null;
+      localStorage.removeItem("accessToken");
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(userSignupAction.fulfilled, (state, action) => {
       const response = action.payload;
-      console.log("slice", response);
+    });
+    builder.addCase(getUserInfoAction.fulfilled, (state, action) => {
+      const response = action.payload;
+      state.user = response.data;
     });
   },
 });

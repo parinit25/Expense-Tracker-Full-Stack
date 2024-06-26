@@ -1,20 +1,36 @@
 import React, { Fragment, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import styles from "../../css/login.module.css";
 import "../../index.css";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { userLoginAction } from "../../store/actions/asyncAuthActions";
+import { getUserInfoAction, userLoginAction } from "../../store/actions/asyncAuthActions";
 
 const LoginRight = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     emailId: "",
     password: "",
   });
-  const handleLogin = (e) => {
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    dispatch(userLoginAction(formData));
+    try {
+      const response = await dispatch(userLoginAction(formData));
+      localStorage.setItem("accessToken", response.payload.accessToken);
+      await dispatch(getUserInfoAction());
+      // const userData = jwtDecode(response.payload.accessToken);
+      // dispatch(setUser(userData));
+      const isSecure = window.location.protocol === "https:";
+      const secureFlag = isSecure ? "; Secure" : "";
+      document.cookie = `refreshToken=${response.payload.refreshToken}; Path=/${secureFlag}`;
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });

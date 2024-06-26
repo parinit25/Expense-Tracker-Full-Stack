@@ -1,45 +1,34 @@
-import React, { useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import React from "react";
+import { useSelector } from "react-redux";
+import { Route, Routes } from "react-router-dom";
 import Header from "./components/common/Header";
+import RedirectIfAuthenticated from "./components/common/RedirectIfAuthenticated";
+import RequireAuth from "./components/common/RequireAuth";
+import ExpenseLeaderboardPage from "./pages/ExpenseLeaderboardPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-
-// const isAuthenticated = () => {
-//   return localStorage.getItem("authToken") !== null;
-// };
+import Authenticated from "./utils/Authenticated";
 
 function App() {
-  useEffect(() => {
-    isAuthenticated();
-  }, []);
-  const isAuthenticated = () => {
-    return localStorage.getItem("authToken") !== null;
-  };
-  const ProtectedRoute = ({ children }) => {
-    return isAuthenticated() ? children : <Navigate to="/login" />;
-  };
+  const userData = useSelector((state) => state.user.user);
   return (
-    <Router>
-      {isAuthenticated() && <Header />}
+    <>
+      <Authenticated />
+      {userData && <Header />}
       <Routes>
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route element={<RequireAuth />}>
+          {" "}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/expenses" element={<ExpenseLeaderboardPage />} />
+        </Route>
+        <Route element={<RedirectIfAuthenticated />}>
+          {" "}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+        </Route>
       </Routes>
-    </Router>
+    </>
   );
 }
 

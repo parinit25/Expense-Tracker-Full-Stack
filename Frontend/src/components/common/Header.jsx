@@ -1,8 +1,18 @@
 import React, { Fragment } from "react";
-import styles from "../../css/header.module.css";
+import { useDispatch, useSelector } from "react-redux";
 import appLogo from "../../assets/images/logo.png";
-
+import styles from "../../css/header.module.css";
+import { Link, useNavigate } from "react-router-dom";
+import { clearUser } from "../../store/reducers/authReducer";
 const Header = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state.user.user);
+
+  const userLogoutHandler = () => {
+    navigate("/login");
+    dispatch(clearUser());
+  };
   return (
     <Fragment>
       <header className={styles.header}>
@@ -30,12 +40,22 @@ const Header = () => {
               </a>
             </li>
             <li>
-              <a
-                className={`${styles["main-nav-link"]} ${styles["nav-cta"]}`}
-                href="#"
-              >
-                Log in
-              </a>
+              {!userData ? (
+                <Link
+                  className={`${styles["main-nav-link"]} ${styles["nav-cta"]}`}
+                  to="/login"
+                >
+                  Log in
+                </Link>
+              ) : (
+                <Link
+                  className={`${styles["main-nav-link"]} ${styles["nav-cta"]}`}
+                  to="/login"
+                  onClick={() => userLogoutHandler()}
+                >
+                  Log Out
+                </Link>
+              )}
             </li>
           </ul>
         </nav>

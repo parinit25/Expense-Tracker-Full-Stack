@@ -20,5 +20,13 @@ class apiAuthServices {
       throw error;
     }
   };
+  getUserInfo = async () => {
+    try {
+      const response = await ApiHelper.get("/auth/user-info");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 export const apiAuthService = apiAuthServices.getInstance();

@@ -1,0 +1,29 @@
+.container {
+  background-color: #eaf5f4;
+}
+
+.expenses-leaderboard-container {
+  display: grid;
+  padding: 3.2rem;
+  grid-template-columns: 2fr 1fr;
+  column-gap: 4.8rem;
+}
+
+.table-header-row {
+  font-family: "Poppins", sans-serif !important;
+  font-size: 1.4rem !important;
+  font-weight: 500 !important;
+  background-color: #eaf5f4 !important;
+  min-width: 17rem !important;
+}
+
+.table-header {
+  display: block;
+  background-color: #2a9d8f;
+  padding: 1.6rem;
+  /* display: flex; */
+  font-size: 1.8rem;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+}

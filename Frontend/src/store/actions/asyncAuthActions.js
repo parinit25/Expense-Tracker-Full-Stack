@@ -12,6 +12,13 @@ export const userLoginAction = createAsyncThunk(
   "userLoginAction",
   async (newUserData) => {
     const response = await apiAuthService.userLogin(newUserData);
-    console.log(response);
+    return response;
+  }
+);
+export const getUserInfoAction = createAsyncThunk(
+  "getUserInfoAction",
+  async () => {
+    const response = await apiAuthService.getUserInfo();
+    return response;
   }
 );
