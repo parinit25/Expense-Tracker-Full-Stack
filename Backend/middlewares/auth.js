@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const ApiError = require("../utils/ApiError");
 // Validating Access Token For Each Request //
 
 exports.validateAccessToken = (req, res, next) => {
