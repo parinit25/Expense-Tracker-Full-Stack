@@ -1,9 +1,13 @@
 import React, { Fragment, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "../../css/login.module.css";
 import "../../index.css";
-import { getUserInfoAction, userLoginAction } from "../../store/actions/asyncAuthActions";
+import {
+  getUserInfoAction,
+  userLoginAction,
+} from "../../store/actions/asyncAuthActions";
+import toast from "react-hot-toast";
 
 const LoginRight = () => {
   const dispatch = useDispatch();
@@ -66,7 +70,17 @@ const LoginRight = () => {
             <button className={`${styles["submit-btn"]}`}>Submit</button>
           </div>
         </form>
-        <a href="/signup">New user ? Sign up</a>
+        <div className={styles["links-container"]}>
+          <Link
+            className={styles["links-container-link"]}
+            to="/forgot-password"
+          >
+            Forgot Password ?
+          </Link>
+          <Link className={styles["links-container-link"]} to="/signup">
+            New user ? Sign up
+          </Link>
+        </div>
       </div>
     </Fragment>
   );

@@ -1,6 +1,7 @@
 // utils/ApiHelper.js
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import toast from "react-hot-toast";
 
 class ApiHelper {
   constructor() {
@@ -21,6 +22,7 @@ class ApiHelper {
           return config;
         },
         (error) => {
+          toast.error("Request error: " + error.message);
           return Promise.reject(error);
         }
       );
@@ -29,6 +31,9 @@ class ApiHelper {
         (response) => response,
         async (error) => {
           const originalRequest = error.config;
+          const errorMessage =
+            error.response?.data?.message ||
+            "Something went wrong, please try again.";
 
           if (error.response.status === 403 && !originalRequest._retry) {
             originalRequest._retry = true;
@@ -42,6 +47,8 @@ class ApiHelper {
               return this.client(originalRequest);
             }
           }
+
+          toast.error(errorMessage);
           return Promise.reject(error);
         }
       );
@@ -67,9 +74,11 @@ class ApiHelper {
         emailId: userEmailId.emailId,
       });
 
+      toast.success("Access token refreshed successfully!");
       return response.data.accessToken;
     } catch (error) {
       console.error("Failed to refresh access token", error);
+      toast.error("Failed to refresh access token. Please log in again.");
       // Handle the case where refreshing the token fails (e.g., log out the user)
       return null;
     }
@@ -78,7 +87,6 @@ class ApiHelper {
   getRefreshToken() {
     const name = "refreshToken=";
     const decodedCookie = decodeURIComponent(document.cookie);
-    console.log(decodedCookie); // This should show the cookies if any are set
     const ca = decodedCookie.split(";");
     for (let i = 0; i < ca.length; i++) {
       let c = ca[i];
@@ -86,7 +94,6 @@ class ApiHelper {
         c = c.substring(1);
       }
       if (c.indexOf(name) === 0) {
-        console.log(c.substring(name.length, c.length));
         return c.substring(name.length, c.length);
       }
     }
@@ -94,19 +101,57 @@ class ApiHelper {
   }
 
   get(url, params = {}) {
-    return this.client.get(url, { params });
+    return this.client
+      .get(url, { params })
+      .then((response) => {
+        toast.success(response?.data?.message);
+        console.log(response);
+        return response;
+      })
+      .catch((error) => {
+        // Error handling already managed in interceptors
+        throw error;
+      });
   }
 
   post(url, data) {
-    return this.client.post(url, data);
+    return this.client
+      .post(url, data)
+      .then((response) => {
+        toast.success(response?.data?.message);
+        // console.log(response);
+        return response;
+      })
+      .catch((error) => {
+        // Error handling already managed in interceptors
+        throw error;
+      });
   }
 
   put(url, data) {
-    return this.client.put(url, data);
+    return this.client
+      .put(url, data)
+      .then((response) => {
+        toast.success("Data updated successfully!");
+        return response;
+      })
+      .catch((error) => {
+        // Error handling already managed in interceptors
+        throw error;
+      });
   }
 
   delete(url) {
-    return this.client.delete(url);
+    return this.client
+      .delete(url)
+      .then((response) => {
+        toast.success("Data deleted successfully!");
+        return response;
+      })
+      .catch((error) => {
+        // Error handling already managed in interceptors
+        throw error;
+      });
   }
 }
 

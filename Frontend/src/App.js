@@ -9,12 +9,16 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import Authenticated from "./utils/Authenticated";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const userData = useSelector((state) => state.user.user);
   return (
     <>
       <Authenticated />
+      <Toaster position="top-right" />
       {userData && <Header />}
       <Routes>
         <Route element={<RequireAuth />}>
@@ -26,6 +30,11 @@ function App() {
           {" "}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route
+            path="/forgot-password"
+            element={<ForgotPasswordPage />}
+          ></Route>
         </Route>
       </Routes>
     </>

@@ -28,5 +28,25 @@ class apiAuthServices {
       throw error;
     }
   };
+  forgotPasswordLink = async (emailId) => {
+    try {
+      const response = await ApiHelper.post(
+        "auth/reset-password/mail",
+        emailId
+      );
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  };
+
+  resetPassword = async (userData) => {
+    try {
+      const response = await ApiHelper.post("auth/reset-password", userData);
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  };
 }
 export const apiAuthService = apiAuthServices.getInstance();

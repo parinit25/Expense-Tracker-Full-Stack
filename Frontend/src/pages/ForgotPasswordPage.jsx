@@ -1,19 +1,19 @@
 import React, { Fragment } from "react";
-import styles from "../css/login.module.css";
 import AuthLeft from "../components/auth/AuthLeft";
-import LoginRight from "../components/auth/LoginRight";
+import ForgotPassword from "../components/auth/ForgotPassword";
+import styles from "../css/login.module.css";
 
-const LoginPage = () => {
+const ForgotPasswordPage = () => {
   return (
     <Fragment>
       <section className={styles["section-login"]}>
         <div className={styles["login"]}>
           <AuthLeft />
-          <LoginRight />
+          <ForgotPassword />
         </div>
       </section>
     </Fragment>
   );
 };
 
-export default LoginPage;
+export default ForgotPasswordPage;

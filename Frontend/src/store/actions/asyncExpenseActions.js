@@ -1,11 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { apiExpenseService } from "../services/apiExpenseService";
+import toast from "react-hot-toast";
 
 export const addNewExpenseAction = createAsyncThunk(
   "addNewExpenseAction",
   async (expenseData) => {
     const response = await apiExpenseService.addNewExpense(expenseData);
-    console.log(response, "add");
     return response;
   }
 );
@@ -13,7 +13,6 @@ export const getAllExpensesAction = createAsyncThunk(
   "getAllExpensesAction",
   async () => {
     const response = await apiExpenseService.getAllExpense();
-    console.log(response, "get");
     return response;
   }
 );

@@ -3,7 +3,7 @@ import styles from "../../css/login.module.css";
 import appLogo from "../../assets/images/logo.png";
 import loginPic from "../../assets/images/login.jpg";
 
-const LoginLeft = () => {
+const AuthLeft = () => {
   return (
     <div className={styles["image-text-box"]}>
       <div className={styles["app-logo-img"]}>
@@ -26,4 +26,4 @@ const LoginLeft = () => {
   );
 };
 
-export default LoginLeft;
+export default AuthLeft;

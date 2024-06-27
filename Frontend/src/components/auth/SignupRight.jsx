@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import styles from "../../css/login.module.css";
 import "../../index.css";
 import { userSignupAction } from "../../store/actions/asyncAuthActions";
+import { Link } from "react-router-dom";
 
 const SignupRight = () => {
   const dispatch = useDispatch();
@@ -113,7 +114,11 @@ const SignupRight = () => {
           </button>
         </div>
       </form>
-      <a href="/login">Already have an account? Log in</a>
+      <div className={styles["links-container"]}>
+        <Link className={styles["links-container-link"]} to="/login">
+          Already have an account? Log in
+        </Link>
+      </div>
     </div>
   );
 };

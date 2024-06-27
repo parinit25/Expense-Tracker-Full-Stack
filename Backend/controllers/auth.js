@@ -2,6 +2,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const sequelize = require("sequelize");
 const User = require("../models/User");
+const ResetPassRequests = require("../models/ResetPassRequets");
 const ApiResponse = require("../utils/ApiResponse");
 const ApiError = require("../utils/ApiError");
 const bcrypt = require("bcrypt");
@@ -141,49 +142,198 @@ exports.refreshAccessToken = async (req, res) => {
   }
 };
 
-exports.resetPassword = async (req, res) => {
+exports.resetPasswordSendMail = async (req, res) => {
   const { emailId } = req.body;
-  // Generate SMTP service account from ethereal.email
-  nodemailer.createTestAccount((err, account) => {
-    if (err) {
-      console.error("Failed to create a testing account. " + err.message);
-      return process.exit(1);
+  try {
+    const user = await User.findOne({ where: { emailId: emailId } });
+    console.log(user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
     }
-
-    console.log("Credentials obtained, sending message...");
-
-    // Create a SMTP transporter object
-    let transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      auth: {
-        user: process.env.ETHEREAL_ACCOUNT_USERNAME,
-        pass: process.env.ETHEREAL_ACCOUNT_PASSWORD,
+    const resetRequests = await ResetPassRequests.findAll({
+      where: {
+        userId: user.id,
+        isActive: true,
       },
     });
+    if (resetRequests && resetRequests.length > 0) {
+      return res
+        .status(400)
+        .json(new ApiError(400, "Another Request already active", null));
+    }
+    const token = crypto.randomUUID(); // Generate a unique token
 
-    // Message object
+    await ResetPassRequests.create({
+      userId: user.id,
+      isActive: true,
+      generatedToken: token,
+    });
+    const resetLink = `http://localhost:3001/reset-password?token=${token}`;
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.USER_EMAIL,
+        pass: process.env.USER_PASSWORD,
+      },
+    });
     let message = {
-      from: `Expense Tracker <gage.roberts67@ethereal.email>`,
-      to: `Recipient <${emailId}>`,
+      from: process.env.USER_EMAIL,
+      to: emailId,
       subject: "Reset Password",
-      text: "Forgot Password ? No Problem",
-      html: "<p><b>Hello</b>Did you forgot your password ? </p>",
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Password Reset</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f6f6f6;
+                    margin: 0;
+                    padding: 0;
+                }
+                .container {
+                    width: 100%;
+                    padding: 20px;
+                    background-color: #f6f6f6;
+                }
+                .content {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .header {
+                    text-align: center;
+                    padding-bottom: 20px;
+                    border-bottom: 1px solid #e9e9e9;
+                }
+                .header img {
+                    max-width: 150px;
+                }
+                .body {
+                    padding: 20px 0;
+                }
+                .body h1 {
+                    font-size: 24px;
+                    color: #333333;
+                }
+                .body p {
+                    font-size: 16px;
+                    color: #555555;
+                }
+                .body a {
+                    display: inline-block;
+                    margin-top: 20px;
+                    padding: 10px 20px;
+                    background-color: #28a745;
+                    color: #ffffff;
+                    text-decoration: none;
+                    border-radius: 5px;
+                }
+                .footer {
+                    text-align: center;
+                    padding-top: 20px;
+                    border-top: 1px solid #e9e9e9;
+                    font-size: 12px;
+                    color: #999999;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="content">
+                    <div class="header">
+                        <img src="your-logo-url.png" alt="Your Logo">
+                    </div>
+                    <div class="body">
+                        <h1>Reset Your Password</h1>
+                        <p>Hello,</p>
+                        <p>We received a request to reset your password. Click the button below to reset it.</p>
+                        <a href="${resetLink}">Reset Password</a>
+                    </div>
+                    <div class="footer">
+                        <p>If you didn't request this, please ignore this email.</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+      `,
     };
-
     transporter.sendMail(message, (err, info) => {
       if (err) {
         console.log("Error occurred. " + err.message);
-        return process.exit(1);
+        return res
+          .status(500)
+          .json(new ApiError(500, "Failed to send email.", null));
       }
-
-      console.log("Message sent: %s", info.messageId);
-      // Preview only available when sending through an Ethereal account
-      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+      res
+        .status(200)
+        .json(
+          new ApiResponse(200, "Password reset email sent successfully.", null)
+        );
     });
-  });
+  } catch (error) {
+    console.error("Error occurred during password reset:", error);
+    res
+      .status(500)
+      .json(
+        new ApiError(500, "An error occurred during password reset.", null)
+      );
+  }
 };
+exports.resetPassword = async (req, res) => {
+  const { token, password, confirmPassword } = req.body;
+  if (password !== confirmPassword) {
+    return res
+      .status(400)
+      .json(new ApiError(400, "Passwords do not match", null));
+  }
+  if (!token) {
+    return res
+      .status(400)
+      .json(new ApiError(400, "Invalid or Missing Token", null));
+  }
+  try {
+    const resetPasswordUser = await ResetPassRequests.findOne({
+      where: { isActive: true, generatedToken: token },
+    });
+    if (!resetPasswordUser) {
+      return res
+        .status(400)
+        .json(new ApiError(400, "Invalid or Missing Token", null));
+    }
+    const user = await User.findOne({
+      where: {
+        id: resetPasswordUser.userId,
+      },
+    });
 
+    if (!user) {
+      return res.status(404).json(new ApiError(404, "User not found", null));
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await user.update({
+      password: hashedPassword,
+    });
+    await user.save();
+    await resetPasswordUser.update({ isActive: false });
+    await resetPasswordUser.save();
+    res
+      .status(200)
+      .json(new ApiResponse(200, "Password updated successfully", null));
+  } catch (error) {
+    console.error("Error occurred during password reset:", error);
+    res
+      .status(500)
+      .json(new ApiError(500, "Something went wrong, please try again", null));
+  }
+};
 exports.getUserInfo = async (req, res) => {
   if (!req.user || !req.user.id) {
     return res.status(400).json(new ApiError(400, "User not found", null));

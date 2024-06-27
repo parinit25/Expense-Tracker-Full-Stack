@@ -22,3 +22,18 @@ export const getUserInfoAction = createAsyncThunk(
     return response;
   }
 );
+export const forgotPasswordLinkAction = createAsyncThunk(
+  "forgotPasswordLinkAction",
+  async (emailId) => {
+    console.log(emailId);
+    const response = await apiAuthService.forgotPasswordLink(emailId);
+    return response;
+  }
+);
+export const resetPasswordAction = createAsyncThunk(
+  "resetPasswordAction",
+  async (userData) => {
+    const response = await apiAuthService.resetPassword(userData);
+    return response;
+  }
+);

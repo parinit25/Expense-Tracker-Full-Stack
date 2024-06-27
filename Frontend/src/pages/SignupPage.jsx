@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import SignupLeft from "../components/auth/SignupLeft";
+import AuthLeft from "../components/auth/AuthLeft";
 import SignupRight from "../components/auth/SignupRight";
 import styles from "../css/login.module.css";
 
@@ -8,7 +8,7 @@ const SignupPage = () => {
     <Fragment>
       <section className={styles["section-login"]}>
         <div className={styles["login"]}>
-          <SignupLeft />
+          <AuthLeft />
           <SignupRight />
         </div>
       </section>
