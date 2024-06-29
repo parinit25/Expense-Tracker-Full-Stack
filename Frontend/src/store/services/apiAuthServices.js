@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import ApiHelper from "../../utils/apiHelper";
 
 class apiAuthServices {
@@ -46,6 +47,14 @@ class apiAuthServices {
       return response.data;
     } catch (error) {
       return error;
+    }
+  };
+  buyPremium = async () => {
+    try {
+      const response = await ApiHelper.get("auth/buy-premium");
+      return response.data;
+    } catch (error) {
+      throw error;
     }
   };
 }

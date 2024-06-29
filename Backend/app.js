@@ -7,6 +7,7 @@ const expenseRoutes = require("./routes/expense");
 const User = require("./models/User");
 const Expense = require("./models/Expense");
 const ResetPassRequests = require("./models/ResetPassRequets");
+const Orders = require("./models/Orders");
 
 const cors = require("cors");
 

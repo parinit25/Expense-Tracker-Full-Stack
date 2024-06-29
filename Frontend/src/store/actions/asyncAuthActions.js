@@ -37,3 +37,15 @@ export const resetPasswordAction = createAsyncThunk(
     return response;
   }
 );
+export const buyPremiumAction = createAsyncThunk(
+  "buyPremiumAction",
+  async (userId, thunkAPI) => {
+    try {
+      // Call backend to create the order
+      const response = await apiAuthService.buyPremium();
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);

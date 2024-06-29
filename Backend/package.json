@@ -20,6 +20,7 @@
     "mysql2": "^3.10.1",
     "nodemailer": "^6.9.14",
     "nodemon": "^3.1.4",
+    "razorpay": "^2.9.4",
     "sequelize": "^6.37.3"
   }
 }

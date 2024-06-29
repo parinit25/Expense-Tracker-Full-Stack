@@ -7,6 +7,8 @@ const ApiResponse = require("../utils/ApiResponse");
 const ApiError = require("../utils/ApiError");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
+const Razorpay = require("razorpay");
+const Orders = require("../models/Orders");
 
 const expenses = [
   {
@@ -287,6 +289,7 @@ exports.resetPasswordSendMail = async (req, res) => {
       );
   }
 };
+
 exports.resetPassword = async (req, res) => {
   const { token, password, confirmPassword } = req.body;
   if (password !== confirmPassword) {
@@ -334,6 +337,7 @@ exports.resetPassword = async (req, res) => {
       .json(new ApiError(500, "Something went wrong, please try again", null));
   }
 };
+
 exports.getUserInfo = async (req, res) => {
   if (!req.user || !req.user.id) {
     return res.status(400).json(new ApiError(400, "User not found", null));
@@ -353,6 +357,7 @@ exports.getUserInfo = async (req, res) => {
         dateOfBirth: user.dateOfBirth,
         address: user.address,
         phoneNumber: user.phoneNumber,
+        premiumUser: user.premiumUser,
       };
       res
         .status(200)
@@ -368,6 +373,91 @@ exports.getUserInfo = async (req, res) => {
     res
       .status(500)
       .json(new ApiError(500, "Something went wrong in controller", null));
+  }
+};
+
+exports.buyPremium = async (req, res) => {
+  const { id } = req.user;
+
+  try {
+    const rzp = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const amount = 10000;
+
+    const createOrder = (params) => {
+      return new Promise((resolve, reject) => {
+        rzp.orders.create(params, (err, order) => {
+          if (err) {
+            console.error("Razorpay order creation error:", err);
+            reject(err);
+          } else {
+            resolve(order);
+          }
+        });
+      });
+    };
+
+    const order = await createOrder({ amount, currency: "INR" });
+    console.log("Order created:", order);
+
+    const user = await User.findOne({ where: { id: id } });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    console.log("User found:", user.emailId);
+
+    const userOrder = await Orders.create({
+      userId: user.id,
+      orderId: order.id,
+      status: "PENDING",
+    });
+    console.log("User order created:", userOrder);
+
+    return res.status(200).json(
+      new ApiResponse(200, "Order Created Successfully", {
+        userOrder,
+        key_id: rzp.key_id, // Uncomment if you need to send the key_id to the client
+      })
+    );
+  } catch (error) {
+    console.error("Error in buyPremium:", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal server error", error));
+  }
+};
+exports.updateTransactionStatus = async (req, res) => {
+  const { orderId, paymentId } = req.body;
+  const { id } = req.user;
+
+  try {
+    const order = await Orders.findOne({ where: { orderId } });
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    order.paymentId = paymentId;
+    order.status = "COMPLETED";
+    await order.save();
+
+    const user = await User.findOne({ where: { id } });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    user.premiumUser = true; // Update the premium status
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Transaction updated successfully" });
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 

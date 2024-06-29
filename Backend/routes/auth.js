@@ -15,6 +15,16 @@ router.post("/refresh", authController.refreshAccessToken);
 router.post("/reset-password/mail", authController.resetPasswordSendMail);
 router.post("/reset-password", authController.resetPassword);
 router.get(
+  "/buy-premium",
+  authMiddleware.validateAccessToken,
+  authController.buyPremium
+);
+router.post(
+  "/update-status",
+  authMiddleware.validateAccessToken,
+  authController.updateTransactionStatus
+);
+router.get(
   "/demo",
   authMiddleware.validateAccessToken,
   authController.sendDemoExpense

@@ -16,13 +16,27 @@ const Header = () => {
   return (
     <Fragment>
       <header className={styles.header}>
-        <img className={styles.logo} src={appLogo} alt="Expense Tracker Logo" />
+        <Link to="/">
+          <img
+            className={styles.logo}
+            src={appLogo}
+            alt="Expense Tracker Logo"
+          />
+        </Link>
+
         <nav className={styles["main-nav"]}>
           <ul className={styles["main-nav-list"]}>
             <li>
-              <a className={styles["main-nav-link"]} href="#">
-                Section 1
-              </a>
+              {userData?.premiumUser === false ? (
+                <button className={styles["premium-button"]}>
+                  Buy Premium
+                </button>
+              ) : (
+                <div className={styles["premium-container"]}>
+                  <ion-icon name="star"></ion-icon>
+                  <p className={styles["premium-text"]}>Premium User</p>
+                </div>
+              )}
             </li>
             <li>
               <a className={styles["main-nav-link"]} href="#">
