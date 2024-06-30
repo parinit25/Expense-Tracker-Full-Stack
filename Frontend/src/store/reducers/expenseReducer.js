@@ -1,9 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllExpensesAction } from "../actions/asyncExpenseActions";
+import {
+  getAllExpensesAction,
+  getLeaderboardAction,
+} from "../actions/asyncExpenseActions";
 
 const initialState = {
   openExpenseDialog: true,
   expensesList: [],
+  leaderboard: [],
 };
 
 const expenseSlice = createSlice({
@@ -17,8 +21,11 @@ const expenseSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(getAllExpensesAction.fulfilled, (state, action) => {
       const response = action.payload;
-      state.expensesList = response.data.data;
-      console.log(response, "expensesinSlice");
+      state.expensesList = response.data;
+    });
+    builder.addCase(getLeaderboardAction.fulfilled, (state, action) => {
+      const response = action.payload;
+      state.leaderboard = response.data;
     });
   },
 });

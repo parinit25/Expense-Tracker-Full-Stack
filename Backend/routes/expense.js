@@ -9,7 +9,7 @@ router.post(
   "/add-expense",
   authMiddleware.validateAccessToken,
   expenseMiddleware.validateAddExpense,
-  expenseController.addExpenses
+  expenseController.addExpense
 );
 router.get(
   "/",

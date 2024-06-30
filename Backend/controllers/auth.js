@@ -378,6 +378,7 @@ exports.getUserInfo = async (req, res) => {
 
 exports.buyPremium = async (req, res) => {
   const { id } = req.user;
+  console.log(process.env.RAZORPAY_KEY_ID, process.env.RAZORPAY_KEY_SECRET);
 
   try {
     const rzp = new Razorpay({
@@ -432,32 +433,36 @@ exports.buyPremium = async (req, res) => {
 exports.updateTransactionStatus = async (req, res) => {
   const { orderId, paymentId } = req.body;
   const { id } = req.user;
-
   try {
     const order = await Orders.findOne({ where: { orderId } });
-
     if (!order) {
-      return res.status(404).json({ error: "Order not found" });
+      return res.status(404).json(new ApiError(404, "Order not found", null));
     }
-
-    order.paymentId = paymentId;
-    order.status = "COMPLETED";
-    await order.save();
-
-    const user = await User.findOne({ where: { id } });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    if (paymentId) {
+      order.paymentId = paymentId;
+      order.status = "COMPLETED";
+      await order.save();
+      const user = await User.findOne({ where: { id } });
+      if (!user) {
+        return res.status(404).json(new ApiError(404, "User not found", null));
+      }
+      user.premiumUser = true;
+      await user.save();
+      return res
+        .status(200)
+        .json(new ApiResponse(200, "Transaction completed successfully", null));
+    } else {
+      order.paymentId = null;
+      order.status = "FAILED";
+      await order.save();
+      return res
+        .status(400)
+        .json(new ApiError(400, "Transaction failed", null));
     }
-    user.premiumUser = true; // Update the premium status
-    await user.save();
-
-    return res
-      .status(200)
-      .json({ message: "Transaction updated successfully" });
   } catch (error) {
-    console.error("Error updating transaction:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", null));
   }
 };
 
@@ -471,7 +476,7 @@ exports.generateAccessToken = (user) => {
       lastName: user.lastName,
     };
     return jwt.sign(userPayload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "15s",
+      expiresIn: "15m",
     });
   } catch (error) {
     console.log(error, "Error in generating access token");

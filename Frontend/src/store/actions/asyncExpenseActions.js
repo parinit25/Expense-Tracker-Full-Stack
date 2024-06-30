@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { apiExpenseService } from "../services/apiExpenseService";
 import toast from "react-hot-toast";
+import { create } from "@mui/material/styles/createTransitions";
 
 export const addNewExpenseAction = createAsyncThunk(
   "addNewExpenseAction",
@@ -29,6 +30,13 @@ export const deleteExpenseAction = createAsyncThunk(
   async (expenseId) => {
     const response = await apiExpenseService.deleteExpense(expenseId);
     console.log(response, "delete");
+    return response;
+  }
+);
+export const getLeaderboardAction = createAsyncThunk(
+  "getleaderboardAction",
+  async () => {
+    const response = await apiExpenseService.getLeaderboard();
     return response;
   }
 );

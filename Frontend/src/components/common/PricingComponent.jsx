@@ -1,11 +1,15 @@
 import React from "react";
 import styles from "../../css/pricing.module.css";
-import { useDispatch } from "react-redux";
-import { buyPremiumAction } from "../../store/actions/asyncAuthActions";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  buyPremiumAction,
+  getUserInfoAction,
+} from "../../store/actions/asyncAuthActions";
 import ApiHelper from "../../utils/apiHelper";
 
 const PricingComponent = () => {
   const dispatch = useDispatch();
+  const userData = useSelector((state) => state.user.user);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -20,6 +24,7 @@ const PricingComponent = () => {
       document.body.appendChild(script);
     });
   };
+
   const buyPremiumHandler = async () => {
     const res = await loadRazorpayScript();
     if (!res) {
@@ -32,14 +37,20 @@ const PricingComponent = () => {
       key: key_id,
       name: "Expense Tracker",
       description: "Test Transaction",
-      order_id: userOrder.orderId,
+      order_id: userOrder?.orderId,
       handler: async (response) => {
-        const paymentId = response.razorpay_payment_id;
-        await ApiHelper.post("/auth/update-status", {
-          orderId: userOrder.orderId,
-          paymentId,
-        });
-        alert("Payment successful");
+        try {
+          const paymentId = response.razorpay_payment_id;
+          const reponse = await ApiHelper.post("/auth/update-status", {
+            orderId: userOrder?.orderId,
+            paymentId,
+          });
+          console.log(reponse, "response");
+          dispatch(getUserInfoAction());
+          alert("Payment successful");
+        } catch (error) {
+          console.log(error);
+        }
       },
       notes: {
         address: "Corporate Office",
@@ -47,8 +58,22 @@ const PricingComponent = () => {
       theme: {
         color: "#2a9d8f",
       },
+      modal: {
+        ondismiss: async () => {
+          try {
+            await ApiHelper.post("/auth/update-status", {
+              orderId: userOrder?.orderId,
+              paymentId: null,
+            });
+            alert("Payment failed or was not completed");
+          } catch (error) {
+            console.log(error);
+          }
+        },
+      },
     };
     const paymentObject = new window.Razorpay(options);
+    console.log(paymentObject);
     paymentObject.open();
   };
   return (
@@ -92,9 +117,15 @@ const PricingComponent = () => {
             </li>
           </ul>
           <div className={styles["plan-sign-up"]}>
-            <a href="#" className="btn btn--full">
-              FREE
-            </a>
+            {userData?.premiumStatus === false ? (
+              <a href="#" className="btn btn--full">
+                Currently Active
+              </a>
+            ) : (
+              <a href="#" className="btn btn--full">
+                Free Plan
+              </a>
+            )}
           </div>
         </div>
 
@@ -132,13 +163,15 @@ const PricingComponent = () => {
             </li>
           </ul>
           <div className={styles["plan-sign-up"]}>
-            <button
-              href="#"
-              className="button"
-              onClick={buyPremiumHandler}
-            >
-              Go Premium
-            </button>
+            {userData?.premiumStatus ? (
+              <button href="#" className="button" onClick={buyPremiumHandler}>
+                Go Premium
+              </button>
+            ) : (
+              <button href="#" className="button">
+                Currently Active
+              </button>
+            )}
           </div>
         </div>
       </div>

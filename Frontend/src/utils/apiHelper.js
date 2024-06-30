@@ -106,7 +106,7 @@ class ApiHelper {
       .then((response) => {
         toast.success(response?.data?.message);
         console.log(response);
-        return response;
+        return response.data;
       })
       .catch((error) => {
         // Error handling already managed in interceptors

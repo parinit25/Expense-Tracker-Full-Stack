@@ -7,8 +7,13 @@ const ExpenseLeaderboardPage = () => {
   return (
     <div className={`${styles["container"]}`}>
       <div className={`${styles["expenses-leaderboard-container"]}`}>
-        <ExpensesTable />
-        <Leaderboard />
+        <div className={styles["expenses-table"]}>
+          <ExpensesTable />
+        </div>
+
+        <div className={styles["expenses-leaderboard"]}>
+          <Leaderboard />
+        </div>
       </div>
     </div>
   );

@@ -57,14 +57,39 @@ export default function ExpensesTable() {
           </TableHead>
           <TableBody>
             {expenses
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  <TableCell align="left">{row.title}</TableCell>
-                  <TableCell align="left">{row.description}</TableCell>
-                  <TableCell align="left">{row.amount}</TableCell>
-                  <TableCell align="left">{row.category}</TableCell>
-                  <TableCell align="left">{row.date}</TableCell>
+                  <TableCell
+                    className={styles["table-row-values"]}
+                    align="left"
+                  >
+                    {row.title}
+                  </TableCell>
+                  <TableCell
+                    className={styles["table-row-values"]}
+                    align="left"
+                  >
+                    {row.description}
+                  </TableCell>
+                  <TableCell
+                    className={styles["table-row-values"]}
+                    align="left"
+                  >
+                    {row.amount}
+                  </TableCell>
+                  <TableCell
+                    className={styles["table-row-values"]}
+                    align="left"
+                  >
+                    {row.category}
+                  </TableCell>
+                  <TableCell
+                    className={styles["table-row-values"]}
+                    align="left"
+                  >
+                    {row.date}
+                  </TableCell>
                   {/* <TableCell align="left">
                     <ion-icon name="trash-outline"></ion-icon>
                   </TableCell> */}

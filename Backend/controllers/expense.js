@@ -1,28 +1,43 @@
 const Expense = require("../models/Expense");
+const User = require("../models/User");
 const ApiError = require("../utils/ApiError");
 const ApiResponse = require("../utils/ApiResponse");
+const sequelize = require("../utils/database");
 
-// Add Expense
-exports.addExpenses = async (req, res) => {
-  const { title, description, amount, category, date } = req.body;
-  const { id } = req.user;
+exports.addExpense = async (req, res) => {
+  let t;
   try {
-    const expense = await Expense.create({
-      title,
-      description,
-      amount,
-      date,
-      category,
-      userId: id,
-    });
+    t = await sequelize.transaction();
+    const { title, description, amount, category, date } = req.body;
+    const { id } = req.user;
+    const expense = await Expense.create(
+      {
+        title,
+        description,
+        amount,
+        date,
+        category,
+        userId: id,
+      },
+      { transaction: t }
+    );
+    const user = await User.findByPk(id, { transaction: t });
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json(new ApiError(404, "User not found", null));
+    }
+    user.totalExpenses += amount;
+    await user.save({ transaction: t });
+    await t.commit();
     res
       .status(200)
       .json(new ApiResponse(200, "Expense added successfully", expense));
   } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json(new ApiError(500, "Something went wrong", error.message));
+    console.error("Error adding expense:", error);
+    if (t) {
+      await t.rollback();
+    }
+    res.status(500).json(new ApiError(500, "Something went wrong", null));
   }
 };
 
@@ -52,52 +67,76 @@ exports.getAllExpenses = async (req, res) => {
 
 // Edit Expense
 exports.editExpense = async (req, res) => {
-  const { expenseId } = req.params;
-  const { title, description, amount, category, date } = req.body;
-  const { id } = req.user;
+  let t;
   try {
-    const expense = await Expense.findOne({
-      where: { id: expenseId, userId: id },
-    });
+    t = await sequelize.transaction();
+
+    const { expenseId } = req.params;
+    const { title, description, amount, category, date } = req.body;
+    const { id } = req.user;
+    const expense = await Expense.findByPk(expenseId, { transaction: t });
     if (!expense) {
+      await t.rollback();
       return res.status(404).json(new ApiError(404, "Expense not found", null));
     }
-    expense.title = title || expense.title;
-    expense.description = description || expense.description;
-    expense.amount = amount || expense.amount;
-    expense.category = category || expense.category;
-    expense.date = date || expense.date;
-    await expense.save();
+    const oldAmount = expense.amount;
+    expense.title = title;
+    expense.description = description;
+    expense.amount = amount;
+    expense.category = category;
+    expense.date = date;
+    await expense.save({ transaction: t });
+    const user = await User.findByPk(id, { transaction: t });
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json(new ApiError(404, "User not found", null));
+    }
+    user.totalExpenses += amount - oldAmount;
+    await user.save({ transaction: t });
+    await t.commit();
     res
       .status(200)
       .json(new ApiResponse(200, "Expense updated successfully", expense));
   } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json(new ApiError(500, "Something went wrong", error.message));
+    console.error("Error updating expense:", error);
+    if (t) {
+      await t.rollback();
+    }
+
+    res.status(500).json(new ApiError(500, "Something went wrong", null));
   }
 };
 
 // Delete Expense
 exports.deleteExpense = async (req, res) => {
-  const { expenseId } = req.params;
-  const { id } = req.user;
+  let t;
   try {
-    const expense = await Expense.findOne({
-      where: { id: expenseId, userId: id },
-    });
+    t = await sequelize.transaction();
+    const { expenseId } = req.params;
+    const { id } = req.user;
+    const expense = await Expense.findByPk(expenseId, { transaction: t });
     if (!expense) {
+      await t.rollback();
       return res.status(404).json(new ApiError(404, "Expense not found", null));
     }
-    await expense.destroy();
+    const amount = expense.amount;
+    await expense.destroy({ transaction: t });
+    const user = await User.findByPk(id, { transaction: t });
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json(new ApiError(404, "User not found", null));
+    }
+    user.totalExpenses -= amount;
+    await user.save({ transaction: t });
+    await t.commit();
     res
       .status(200)
       .json(new ApiResponse(200, "Expense deleted successfully", null));
   } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json(new ApiError(500, "Something went wrong", error.message));
+    console.error("Error deleting expense:", error);
+    if (t) {
+      await t.rollback();
+    }
+    res.status(500).json(new ApiError(500, "Something went wrong", null));
   }
 };

@@ -27,7 +27,8 @@ const userSlice = createSlice({
     });
     builder.addCase(getUserInfoAction.fulfilled, (state, action) => {
       const response = action.payload;
-      state.user = response.data;
+      // console.log(response.data);
+      state.user = response;
     });
   },
 });
