@@ -17,12 +17,17 @@ class apiExpenseServices {
     return response;
   };
   deleteExpense = async (expenseId) => {
+    console.log(expenseId)
     const response = ApiHelper.delete(`/expenses/delete/${expenseId}`);
     return response;
   };
   getLeaderboard = async () => {
     const response = ApiHelper.get("/premium/leaderboard");
     // console.log(response.data, "response api service");
+    return response;
+  };
+  downloadExpenses = async () => {
+    const response = ApiHelper.get("/premium/download-expenses");
     return response;
   };
 }

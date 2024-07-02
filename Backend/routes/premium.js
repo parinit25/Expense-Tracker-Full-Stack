@@ -10,4 +10,10 @@ router.get(
   premiumMiddleware.validatePremiumUser,
   premiumController.getLeaderboard
 );
+router.get(
+  "/download-expenses",
+  authMiddleware.validateAccessToken,
+  premiumMiddleware.validatePremiumUser,
+  premiumController.downloadExpenses
+);
 module.exports = router;

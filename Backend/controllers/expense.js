@@ -4,6 +4,7 @@ const ApiError = require("../utils/ApiError");
 const ApiResponse = require("../utils/ApiResponse");
 const sequelize = require("../utils/database");
 
+
 exports.addExpense = async (req, res) => {
   let t;
   try {
@@ -41,7 +42,6 @@ exports.addExpense = async (req, res) => {
   }
 };
 
-// Get All Expenses
 exports.getAllExpenses = async (req, res) => {
   const { id } = req.user;
   try {

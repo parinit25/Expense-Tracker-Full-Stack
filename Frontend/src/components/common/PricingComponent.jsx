@@ -163,7 +163,7 @@ const PricingComponent = () => {
             </li>
           </ul>
           <div className={styles["plan-sign-up"]}>
-            {userData?.premiumStatus ? (
+            {userData?.premiumUser === false ? (
               <button href="#" className="button" onClick={buyPremiumHandler}>
                 Go Premium
               </button>

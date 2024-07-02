@@ -9,6 +9,7 @@ const User = require("./models/User");
 const Expense = require("./models/Expense");
 const ResetPassRequests = require("./models/ResetPassRequets");
 const Orders = require("./models/Orders");
+const DownloadHistory = require("./models/DownloadHistory");
 
 const cors = require("cors");
 

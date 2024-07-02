@@ -43,7 +43,7 @@ export const buyPremiumAction = createAsyncThunk(
     try {
       // Call backend to create the order
       const response = await apiAuthService.buyPremium();
-      return response.data;
+      return response;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }

@@ -13,6 +13,20 @@
 }
 .expenses-leaderboard {
 }
+.secondary-heading-container {
+  background-color: #bfe2dd !important;
+  padding: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.table-secondary-heading {
+  font-family: "Poppins", sans-serif !important;
+  font-size: 1.6rem !important;
+  font-weight: 400 !important;
+  min-width: 17rem !important;
+  display: block;
+}
 
 .table-header-row {
   font-family: "Poppins", sans-serif !important;
@@ -38,4 +52,57 @@
   font-weight: 400 !important;
   /* background-color: #eaf5f4 !important; */
   /* min-width: 17rem !important; */
+}
+.buy-premium-text-container {
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+}
+.buy-premium-text-container ion-icon {
+  justify-self: center;
+  align-self: center;
+  border: 2px solid #2a9d8f;
+  border-radius: 50%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+.buy-premium-text {
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+.no-expense-text-container {
+  padding: 1.6rem;
+  display: flex;
+  align-items: center;
+}
+/* Define the shake animation */
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Style for the delete icon */
+.delete-icon-container ion-icon {
+  color: red;
+  font-size: 2.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Apply the shake animation on hover */
+.delete-icon-container ion-icon:hover {
+  animation: shake 0.5s; /* Adjust the duration as needed */
 }

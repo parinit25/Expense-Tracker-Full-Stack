@@ -27,9 +27,13 @@ export const editExpenseAction = createAsyncThunk(
 );
 export const deleteExpenseAction = createAsyncThunk(
   "deleteExpenseAction",
-  async (expenseId) => {
+  async (expenseId, thunkAPI) => {
     const response = await apiExpenseService.deleteExpense(expenseId);
     console.log(response, "delete");
+    if (response?.data?.status === 200) {
+      thunkAPI.dispatch(getAllExpensesAction());
+      thunkAPI.dispatch(getLeaderboardAction());
+    }
     return response;
   }
 );
@@ -37,6 +41,13 @@ export const getLeaderboardAction = createAsyncThunk(
   "getleaderboardAction",
   async () => {
     const response = await apiExpenseService.getLeaderboard();
+    return response;
+  }
+);
+export const downloadExpensesAction = createAsyncThunk(
+  "downloadExpensesAction",
+  async () => {
+    const response = await apiExpenseService.downloadExpenses();
     return response;
   }
 );

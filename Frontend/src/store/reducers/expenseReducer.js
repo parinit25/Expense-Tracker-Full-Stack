@@ -5,7 +5,7 @@ import {
 } from "../actions/asyncExpenseActions";
 
 const initialState = {
-  openExpenseDialog: true,
+  openExpenseDialog: false,
   expensesList: [],
   leaderboard: [],
 };

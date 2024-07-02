@@ -1,5 +1,3 @@
-import styles from "../../css/expenses.module.css";
-import { Typography } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -10,10 +8,8 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getAllExpensesAction,
-  getLeaderboardAction,
-} from "../../store/actions/asyncExpenseActions";
+import styles from "../../css/expenses.module.css";
+import { getLeaderboardAction } from "../../store/actions/asyncExpenseActions";
 
 export default function Leaderboard() {
   const [page, setPage] = React.useState(0);
@@ -40,7 +36,7 @@ export default function Leaderboard() {
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
       <h1 className={styles["table-header"]}>Leaderboard</h1>
-      {userData ? (
+      {userData.premiumUser === true ? (
         <>
           <TableContainer sx={{ maxHeight: 440 }}>
             <Table stickyHeader aria-label="sticky table">
@@ -74,10 +70,6 @@ export default function Leaderboard() {
                       >
                         {row?.totalExpenses}
                       </TableCell>
-
-                      {/* <TableCell align="left">
-                    <ion-icon name="trash-outline"></ion-icon>
-                  </TableCell> */}
                     </TableRow>
                   ))}
               </TableBody>
@@ -94,7 +86,12 @@ export default function Leaderboard() {
           />
         </>
       ) : (
-        <>You need to buy premium to view the leaderboard</>
+        <div className={`${styles["buy-premium-text-container"]}`}>
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <h3 className={`${styles["buy-premium-text"]}`}>
+            You need to buy premium to view the leaderboard
+          </h3>
+        </div>
       )}
     </Paper>
   );
