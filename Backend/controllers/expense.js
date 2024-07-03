@@ -4,7 +4,6 @@ const ApiError = require("../utils/ApiError");
 const ApiResponse = require("../utils/ApiResponse");
 const sequelize = require("../utils/database");
 
-
 exports.addExpense = async (req, res) => {
   let t;
   try {
@@ -44,21 +43,41 @@ exports.addExpense = async (req, res) => {
 
 exports.getAllExpenses = async (req, res) => {
   const { id } = req.user;
+  let { page, count: limit } = req.query;
+
+  // Sanitize and validate inputs
+  page = parseInt(page, 10);
+  limit = parseInt(limit, 10);
+
+  if (isNaN(page) || page < 0) {
+    page = 0;
+  }
+  if (isNaN(limit) || limit <= 0) {
+    limit = 10; // default limit
+  }
+
+  const offset = page * limit;
+
   try {
-    const expenses = await Expense.findAll({
+    const { rows, count } = await Expense.findAndCountAll({
       where: {
-        userId: id,
+        userid: id,
       },
+      offset: offset,
+      limit: limit,
     });
-    if (expenses.length > 0) {
+
+    if (rows.length > 0) {
       res
         .status(200)
-        .json(new ApiResponse(200, "Expenses fetched successfully", expenses));
+        .json(
+          new ApiResponse(200, "Expenses fetched successfully", { rows, count })
+        );
     } else {
       res.status(404).json(new ApiError(404, "No expenses found", null));
     }
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching expenses:", error);
     res
       .status(500)
       .json(new ApiError(500, "Something went wrong", error.message));

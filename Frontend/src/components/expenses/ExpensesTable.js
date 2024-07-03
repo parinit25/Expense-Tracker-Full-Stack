@@ -18,42 +18,50 @@ import { formatDate } from "../../utils/formatDate";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
 
 export default function ExpensesTable() {
-  const [page, setPage] = React.useState(0);
+  const [page, setPage] = React.useState(
+    parseInt(localStorage.getItem("page")) || 0
+  );
+  const [rowsPerPage, setRowsPerPage] = React.useState(
+    parseInt(localStorage.getItem("rowsPerPage")) || 10
+  );
   const dispatch = useDispatch();
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const expenses = useSelector((state) => state.expense.expensesList);
+
+  const expensesData = useSelector((state) => state.expense.expensesList);
+  const total = useSelector((state) => state.expense.totalExpenses);
   const userData = useSelector((state) => state.user.user);
   const [deleteDialog, setDeleteDialog] = React.useState(false);
   const [toBeDeletedId, setToBeDeletedId] = React.useState("");
 
   React.useEffect(() => {
-    dispatch(getAllExpensesAction());
-  }, [dispatch]);
+    dispatch(getAllExpensesAction({ page, rowsPerPage }));
+  }, [dispatch, page, rowsPerPage]);
 
   const handleChangePage = (event, newPage) => {
+    console.log(newPage, "newPage");
+    localStorage.setItem("page", +newPage);
     setPage(newPage);
   };
+  const handleChangeRowsPerPage = (event) => {
+    localStorage.setItem("rowsPerPage", +event.target.value);
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
+  console.log(expensesData, "expemses");
+
+  const openDeleteDialog = (id) => {
+    console.log("hello world", id);
+    setToBeDeletedId(id);
+  };
   const closeDeleteDialog = () => {
     setDeleteDialog(false);
     setToBeDeletedId("");
   };
   React.useEffect(() => {
     if (toBeDeletedId) {
-      console.log(toBeDeletedId);
       setDeleteDialog(true);
     }
   }, [toBeDeletedId]);
-
-  const openDeleteDialog = (id) => {
-    console.log("hello world", id);
-    setToBeDeletedId(id);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
 
   const downloadExpensesHandler = async () => {
     try {
@@ -93,9 +101,9 @@ export default function ExpensesTable() {
         </div>
       </div>
 
-      {expenses?.length > 0 ? (
+      {expensesData?.length > 0 ? (
         <>
-          <TableContainer sx={{ maxHeight: 440 }}>
+          <TableContainer sx={{ maxHeight: 440 }} key={Math.random()}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
@@ -118,57 +126,55 @@ export default function ExpensesTable() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {expenses
-                  ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row) => (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell
-                        className={styles["table-row-values"]}
-                        align="left"
-                      >
-                        {row.title}
-                      </TableCell>
-                      <TableCell
-                        className={styles["table-row-values"]}
-                        align="left"
-                      >
-                        {row.description}
-                      </TableCell>
-                      <TableCell
-                        className={styles["table-row-values"]}
-                        align="left"
-                      >
-                        {row.amount}
-                      </TableCell>
-                      <TableCell
-                        className={styles["table-row-values"]}
-                        align="left"
-                      >
-                        {row.category}
-                      </TableCell>
-                      <TableCell
-                        className={styles["table-row-values"]}
-                        align="left"
-                      >
-                        {formatDate(row.date)}
-                      </TableCell>
-                      <TableCell>
-                        <div className={styles["delete-icon-container"]}>
-                          <ion-icon
-                            name="trash-outline"
-                            onClick={() => openDeleteDialog(row?.id)}
-                          ></ion-icon>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {expensesData?.map((row) => (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                    <TableCell
+                      className={styles["table-row-values"]}
+                      align="left"
+                    >
+                      {row.id}
+                    </TableCell>
+                    <TableCell
+                      className={styles["table-row-values"]}
+                      align="left"
+                    >
+                      {row.description}
+                    </TableCell>
+                    <TableCell
+                      className={styles["table-row-values"]}
+                      align="left"
+                    >
+                      {row.amount}
+                    </TableCell>
+                    <TableCell
+                      className={styles["table-row-values"]}
+                      align="left"
+                    >
+                      {row.category}
+                    </TableCell>
+                    <TableCell
+                      className={styles["table-row-values"]}
+                      align="left"
+                    >
+                      {formatDate(row.date)}
+                    </TableCell>
+                    <TableCell>
+                      <div className={styles["delete-icon-container"]}>
+                        <ion-icon
+                          name="trash-outline"
+                          onClick={() => openDeleteDialog(row?.id)}
+                        ></ion-icon>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
           <TablePagination
             rowsPerPageOptions={[10, 25, 100]}
             component="div"
-            count={expenses.length}
+            count={total}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -176,6 +182,8 @@ export default function ExpensesTable() {
           />
           {deleteDialog && (
             <DeleteConfirmationDialog
+              page={page}
+              rowsPerPage={rowsPerPage}
               closeDeleteDialog={closeDeleteDialog}
               deleteDialog={deleteDialog}
               toBeDeletedId={toBeDeletedId}

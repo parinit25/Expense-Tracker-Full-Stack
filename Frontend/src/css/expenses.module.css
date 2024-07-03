@@ -5,8 +5,8 @@
 .expenses-leaderboard-container {
   display: grid;
   padding: 3.2rem;
-  grid-template-columns: 2fr 1fr;
-  column-gap: 4.8rem;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 3.2rem;
   /* align-items: stretch; */
 }
 .expenses-table {
@@ -33,7 +33,7 @@
   font-size: 1.4rem !important;
   font-weight: 500 !important;
   background-color: #eaf5f4 !important;
-  min-width: 17rem !important;
+  min-width: 15rem !important;
 }
 
 .table-header {

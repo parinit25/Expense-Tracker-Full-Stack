@@ -11,6 +11,8 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 export default function DeleteConfirmationDialog({
+  page,
+  rowsPerPage,
   closeDeleteDialog,
   deleteDialog,
   toBeDeletedId,
@@ -21,8 +23,15 @@ export default function DeleteConfirmationDialog({
     closeDeleteDialog();
   };
   const deleteHandler = async () => {
-    console.log(toBeDeletedId);
-    await dispatch(deleteExpenseAction(toBeDeletedId));
+    // console.log(toBeDeletedId, "id");
+    dispatch(
+      deleteExpenseAction({
+        expenseId: toBeDeletedId,
+        page: page,
+        rowsPerPage: rowsPerPage,
+      })
+    );
+    console.log(toBeDeletedId, page, rowsPerPage);
     handleClose();
   };
 

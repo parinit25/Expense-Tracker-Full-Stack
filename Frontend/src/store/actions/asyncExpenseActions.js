@@ -12,8 +12,12 @@ export const addNewExpenseAction = createAsyncThunk(
 );
 export const getAllExpensesAction = createAsyncThunk(
   "getAllExpensesAction",
-  async () => {
-    const response = await apiExpenseService.getAllExpense();
+  async ({ page, rowsPerPage }) => {
+    const response = await apiExpenseService.getAllExpense({
+      page,
+      rowsPerPage,
+    });
+    console.log("all exp");
     return response;
   }
 );
@@ -27,13 +31,13 @@ export const editExpenseAction = createAsyncThunk(
 );
 export const deleteExpenseAction = createAsyncThunk(
   "deleteExpenseAction",
-  async (expenseId, thunkAPI) => {
+  async ({ expenseId, page, rowsPerPage }, thunkAPI) => {
     const response = await apiExpenseService.deleteExpense(expenseId);
-    console.log(response, "delete");
     if (response?.data?.status === 200) {
-      thunkAPI.dispatch(getAllExpensesAction());
+      thunkAPI.dispatch(getAllExpensesAction({ page, rowsPerPage }));
       thunkAPI.dispatch(getLeaderboardAction());
     }
+
     return response;
   }
 );
