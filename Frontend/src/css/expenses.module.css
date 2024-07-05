@@ -5,14 +5,21 @@
 .expenses-leaderboard-container {
   display: grid;
   padding: 3.2rem;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 60% 40%; /* First column takes remaining space, second column is auto */
   column-gap: 3.2rem;
-  /* align-items: stretch; */
 }
+
 .expenses-table {
+  /* justify-self: start; Aligns the table to the start of its grid cell */
+  /* max-width: 70%; */
 }
+
 .expenses-leaderboard {
+  /* max-width: 50%; */
+  /* width: 100%; Ensure it takes up the available space up to max-width */
+  /* justify-self: end; Aligns the leaderboard to the end of its grid cell */
 }
+
 .secondary-heading-container {
   background-color: #bfe2dd !important;
   padding: 1.6rem;
@@ -33,7 +40,7 @@
   font-size: 1.4rem !important;
   font-weight: 500 !important;
   background-color: #eaf5f4 !important;
-  min-width: 15rem !important;
+  min-width: 12rem !important;
 }
 
 .table-header {

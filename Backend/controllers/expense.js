@@ -41,9 +41,53 @@ exports.addExpense = async (req, res) => {
   }
 };
 
+// exports.getAllExpenses = async (req, res) => {
+//   const { id } = req.user;
+//   let { page, count: limit } = req.query;
+
+//   // Sanitize and validate inputs
+//   page = parseInt(page, 10);
+//   limit = parseInt(limit, 10);
+
+//   if (isNaN(page) || page < 0) {
+//     page = 0;
+//   }
+//   if (isNaN(limit) || limit <= 0) {
+//     limit = 10; // default limit
+//   }
+
+//   const offset = page * limit;
+
+//   try {
+//     const { rows, count } = await Expense.findAndCountAll({
+//       where: {
+//         userid: id,
+//       },
+//       offset: offset,
+//       limit: limit,
+//     });
+
+//     if (rows.length > 0) {
+//       res
+//         .status(200)
+//         .json(
+//           new ApiResponse(200, "Expenses fetched successfully", { rows, count })
+//         );
+//     } else {
+//       res.status(404).json(new ApiError(404, "No expenses found", null));
+//     }
+//   } catch (error) {
+//     console.error("Error fetching expenses:", error);
+//     res
+//       .status(500)
+//       .json(new ApiError(500, "Something went wrong", error.message));
+//   }
+// };
+
 exports.getAllExpenses = async (req, res) => {
   const { id } = req.user;
   let { page, count: limit } = req.query;
+  console.log(page, limit);
 
   // Sanitize and validate inputs
   page = parseInt(page, 10);
@@ -61,26 +105,106 @@ exports.getAllExpenses = async (req, res) => {
   try {
     const { rows, count } = await Expense.findAndCountAll({
       where: {
-        userid: id,
+        userId: id,
       },
       offset: offset,
       limit: limit,
+      order: [["date", "DESC"]],
     });
 
     if (rows.length > 0) {
-      res
-        .status(200)
-        .json(
-          new ApiResponse(200, "Expenses fetched successfully", { rows, count })
-        );
+      res.status(200).json(
+        new ApiResponse(200, "Expenses fetched successfully", {
+          rows,
+          count,
+        })
+      );
     } else {
-      res.status(404).json(new ApiError(404, "No expenses found", null));
+      res.status(200).json(
+        new ApiResponse(200, "No expenses found", {
+          rows: [],
+          count: 0,
+        })
+      );
     }
   } catch (error) {
     console.error("Error fetching expenses:", error);
     res
       .status(500)
       .json(new ApiError(500, "Something went wrong", error.message));
+  }
+};
+// Monthly Summary
+exports.montlyController = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const listOfExpense = await Expense.findAll({
+      attributes: [
+        [sequelize.fn("DATE_FORMAT", sequelize.col("date"), "%Y-%m"), "month"],
+        [sequelize.fn("SUM", sequelize.col("amount")), "totalAmount"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "transactionCount"],
+      ],
+      group: ["month"],
+      order: [["month", "ASC"]],
+      where: {
+        userId: id,
+      },
+    });
+    if (!listOfExpense) {
+      return res.status(404).json(
+        new ApiError(404, `Unable to fetch Monthly expenses`, {
+          listOfExpense,
+        })
+      );
+    }
+    console.log(listOfExpense, "list of expenses");
+    return res
+      .status(200)
+      .json(new ApiResponse(200, `List of Monthly Expenses`, listOfExpense));
+  } catch (error) {
+    console.error("Error fetching monthly summary:", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", { error }));
+  }
+};
+
+exports.weeklyController = async (req, res) => {
+  const { id } = req.user;
+  try {
+    const listOfExpense = await Expense.findAll({
+      attributes: [
+        [sequelize.fn("YEAR", sequelize.col("date")), "year"],
+        [sequelize.fn("WEEK", sequelize.col("date"), 1), "week"],
+        [sequelize.fn("SUM", sequelize.col("amount")), "totalAmount"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "transactionCount"],
+      ],
+      group: ["year", "week"],
+      order: [
+        ["year", "ASC"],
+        ["week", "ASC"],
+      ],
+      where: {
+        userId: id,
+      },
+    });
+
+    if (!listOfExpense) {
+      return res.status(404).json(
+        new ApiError(404, `Unable to fetch Weekly expenses`, {
+          listOfExpense,
+        })
+      );
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, `List of Weekly Expenses`, listOfExpense));
+  } catch (error) {
+    console.error("Error fetching weekly summary:", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", { error }));
   }
 };
 

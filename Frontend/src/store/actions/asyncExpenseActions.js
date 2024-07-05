@@ -17,7 +17,28 @@ export const getAllExpensesAction = createAsyncThunk(
       page,
       rowsPerPage,
     });
-    console.log("all exp");
+
+    return response;
+  }
+);
+export const getWeeklyExpensesAction = createAsyncThunk(
+  "getWeeklyExpensesAction",
+  async ({ page, rowsPerPage }) => {
+    const response = await apiExpenseService.getWeeklyExpenses({
+      page,
+      rowsPerPage,
+    });
+
+    return response;
+  }
+);
+export const getMonthlyExpensesAction = createAsyncThunk(
+  "getMontlyExpensesAction",
+  async ({ page, rowsPerPage }) => {
+    const response = await apiExpenseService.getMontlyExpenses({
+      page,
+      rowsPerPage,
+    });
     return response;
   }
 );

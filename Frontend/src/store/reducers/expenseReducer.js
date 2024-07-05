@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   getAllExpensesAction,
   getLeaderboardAction,
+  getMonthlyExpensesAction,
+  getWeeklyExpensesAction,
 } from "../actions/asyncExpenseActions";
 
 const initialState = {
@@ -9,6 +11,9 @@ const initialState = {
   expensesList: [],
   totalExpenses: 0, // Add a state to keep track of the total number of expenses
   leaderboard: [],
+  filter: "all",
+  monthlyExpenseData: [],
+  weeklyExpenseData: [],
 };
 
 const expenseSlice = createSlice({
@@ -17,6 +22,9 @@ const expenseSlice = createSlice({
   reducers: {
     openExpenseDialogReducer(state, action) {
       state.openExpenseDialog = !state.openExpenseDialog;
+    },
+    changeFilter(state, action) {
+      state.filter = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -29,8 +37,16 @@ const expenseSlice = createSlice({
       const response = action.payload;
       state.leaderboard = response.data;
     });
+    builder.addCase(getWeeklyExpensesAction.fulfilled, (state, action) => {
+      const response = action.payload;
+      state.weeklyExpenseData = response.data;
+    });
+    builder.addCase(getMonthlyExpensesAction.fulfilled, (state, action) => {
+      const response = action.payload;
+      state.monthlyExpenseData = response.data;
+    });
   },
 });
 
-export const { openExpenseDialogReducer } = expenseSlice.actions;
+export const { openExpenseDialogReducer, changeFilter } = expenseSlice.actions;
 export default expenseSlice.reducer;

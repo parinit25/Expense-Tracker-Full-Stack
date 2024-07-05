@@ -26,4 +26,14 @@ router.delete(
   authMiddleware.validateAccessToken,
   expenseController.deleteExpense
 );
+router.get(
+  "/monthly",
+  authMiddleware.validateAccessToken,
+  expenseController.montlyController
+);
+router.get(
+  "/weekly",
+  authMiddleware.validateAccessToken,
+  expenseController.weeklyController
+);
 module.exports = router;
