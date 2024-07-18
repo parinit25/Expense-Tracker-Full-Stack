@@ -14,9 +14,13 @@ import {
   downloadExpensesAction,
   getAllExpensesAction,
 } from "../../store/actions/asyncExpenseActions";
-import { changeFilter } from "../../store/reducers/expenseReducer";
+import {
+  addExpenseToBeEdited,
+  changeFilter,
+} from "../../store/reducers/expenseReducer";
 import { formatDate } from "../../utils/formatDate";
 import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
+import EditExpenseForm from "./EditExpenseForm";
 
 export default function AllExpenses() {
   const [page, setPage] = React.useState(
@@ -26,7 +30,9 @@ export default function AllExpenses() {
     parseInt(localStorage.getItem("rowsPerPage")) || 10
   );
   const dispatch = useDispatch();
-
+  const expenseToBeEdited = useSelector(
+    (state) => state.expense.expenseToBeEdited
+  );
   const expensesData = useSelector((state) => state.expense.expensesList);
   const total = useSelector((state) => state.expense.totalExpenses);
   const userData = useSelector((state) => state.user.user);
@@ -68,6 +74,9 @@ export default function AllExpenses() {
   const handleFilterChange = (event) => {
     const value = event.target.value;
     dispatch(changeFilter(value));
+  };
+  const editExpenseHandler = (expense) => {
+    dispatch(addExpenseToBeEdited(expense));
   };
 
   return (
@@ -118,7 +127,7 @@ export default function AllExpenses() {
                   align="left"
                 ></TableCell>
                 <TableCell className={styles["table-row-values"]} align="left">
-                  {row.id}
+                  {row.title}
                 </TableCell>
                 <TableCell className={styles["table-row-values"]} align="left">
                   {row.description}
@@ -133,11 +142,19 @@ export default function AllExpenses() {
                   {formatDate(row.date)}
                 </TableCell>
                 <TableCell>
+                  {" "}
                   <div className={styles["delete-icon-container"]}>
                     <ion-icon
-                      name="trash-outline"
-                      onClick={() => openDeleteDialog(row?.id)}
+                      name="create-outline"
+                      onClick={() => editExpenseHandler(row)}
                     ></ion-icon>
+                    <div className={styles["delete-icon"]}>
+                      {" "}
+                      <ion-icon
+                        name="trash-outline"
+                        onClick={() => openDeleteDialog(row?.id)}
+                      ></ion-icon>
+                    </div>
                   </div>
                 </TableCell>
               </TableRow>
@@ -162,6 +179,9 @@ export default function AllExpenses() {
           deleteDialog={deleteDialog}
           toBeDeletedId={toBeDeletedId}
         />
+      )}
+      {expenseToBeEdited && (
+        <EditExpenseForm page={page} rowsPerPage={rowsPerPage} />
       )}
     </Paper>
   );

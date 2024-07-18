@@ -7,7 +7,7 @@ const sequelize = require("../utils/database");
 exports.addExpense = async (req, res) => {
   let t;
   try {
-    t = await sequelize.transaction();
+    t = await sequelize.transaction(); // This function starts a transaction to ensure data consistency
     const { title, description, amount, category, date } = req.body;
     const { id } = req.user;
     const expense = await Expense.create(
@@ -44,19 +44,14 @@ exports.addExpense = async (req, res) => {
 exports.getAllExpenses = async (req, res) => {
   const { id } = req.user;
   let { page, count: limit } = req.query;
-  console.log(page, limit);
-
-  // Sanitize and validate inputs
   page = parseInt(page, 10);
   limit = parseInt(limit, 10);
-
   if (isNaN(page) || page < 0) {
     page = 0;
   }
   if (isNaN(limit) || limit <= 0) {
     limit = 10; // default limit
   }
-
   const offset = page * limit;
 
   try {
@@ -114,7 +109,6 @@ exports.montlyController = async (req, res) => {
         })
       );
     }
-    console.log(listOfExpense, "list of expenses");
     return res
       .status(200)
       .json(new ApiResponse(200, `List of Monthly Expenses`, listOfExpense));
@@ -170,14 +164,14 @@ exports.editExpense = async (req, res) => {
   let t;
   try {
     t = await sequelize.transaction();
-
     const { expenseId } = req.params;
     const { title, description, amount, category, date } = req.body;
     const { id } = req.user;
+    console.log(expenseId, title, description, id, "expenses");
     const expense = await Expense.findByPk(expenseId, { transaction: t });
     if (!expense) {
       await t.rollback();
-      return res.status(404).json(new ApiError(404, "Expense not found", null));
+      return res.status(404).json({ error: "Expense not found" });
     }
     const oldAmount = expense.amount;
     expense.title = title;
@@ -189,21 +183,18 @@ exports.editExpense = async (req, res) => {
     const user = await User.findByPk(id, { transaction: t });
     if (!user) {
       await t.rollback();
-      return res.status(404).json(new ApiError(404, "User not found", null));
+      return res.status(404).json({ error: "User not found" });
     }
     user.totalExpenses += amount - oldAmount;
     await user.save({ transaction: t });
     await t.commit();
-    res
-      .status(200)
-      .json(new ApiResponse(200, "Expense updated successfully", expense));
+    res.status(200).json({ message: "Expense updated successfully", expense });
   } catch (error) {
     console.error("Error updating expense:", error);
     if (t) {
       await t.rollback();
     }
-
-    res.status(500).json(new ApiError(500, "Something went wrong", null));
+    res.status(500).json({ error: "Something went wrong" });
   }
 };
 

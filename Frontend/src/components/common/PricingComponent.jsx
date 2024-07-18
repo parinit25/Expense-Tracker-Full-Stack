@@ -91,7 +91,7 @@ const PricingComponent = () => {
           <header className={styles["plan-header"]}>
             <p className={styles["plan-name"]}>Basic</p>
             <p className={styles["plan-price"]}>
-              <span>$</span>0
+              <span>₹</span>0
             </p>
             <p className={styles["plan-text"]}>
               Basic functionality are always free
@@ -135,7 +135,7 @@ const PricingComponent = () => {
           <header className={styles["plan-header"]}>
             <p className={styles["plan-name"]}>Premium</p>
             <p className={styles["plan-price"]}>
-              <span>$</span>10
+              <span>₹</span>100
             </p>
             <p className={styles["plan-text"]}>View More with less fee</p>
           </header>

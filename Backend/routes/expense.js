@@ -17,7 +17,7 @@ router.get(
   expenseController.getAllExpenses
 );
 router.put(
-  "/edit-expense",
+  "/edit-expense/:expenseId",
   authMiddleware.validateAccessToken,
   expenseController.editExpense
 );

@@ -7,7 +7,8 @@ class ApiHelper {
   constructor() {
     if (!ApiHelper.instance) {
       this.client = axios.create({
-        baseURL: "http://localhost:5000",
+        // baseURL: "https://expense-tracker-api.twilightparadox.com/",
+        baseURL: "http://localhost:5000/",
         headers: {
           "Content-Type": "application/json",
         },
@@ -22,7 +23,7 @@ class ApiHelper {
           return config;
         },
         (error) => {
-          toast.error("Request error: " + error.message);
+          // toast.error("Request error: " + error.message);
           return Promise.reject(error);
         }
       );
@@ -48,7 +49,7 @@ class ApiHelper {
             }
           }
 
-          toast.error(errorMessage);
+          // toast.error(errorMessage);
           return Promise.reject(error);
         }
       );
@@ -78,7 +79,7 @@ class ApiHelper {
       return response.data.accessToken;
     } catch (error) {
       console.error("Failed to refresh access token", error);
-      toast.error("Failed to refresh access token. Please log in again.");
+      // toast.error("Failed to refresh access token. Please log in again.");
       // Handle the case where refreshing the token fails (e.g., log out the user)
       return null;
     }
@@ -104,7 +105,7 @@ class ApiHelper {
     return this.client
       .get(url, { params })
       .then((response) => {
-        toast.success(response?.data?.message);
+        // toast.success(response?.data?.message);
         console.log(response);
         return response.data;
       })

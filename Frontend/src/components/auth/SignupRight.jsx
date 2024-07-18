@@ -3,10 +3,11 @@ import { useDispatch } from "react-redux";
 import styles from "../../css/login.module.css";
 import "../../index.css";
 import { userSignupAction } from "../../store/actions/asyncAuthActions";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SignupRight = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -22,9 +23,9 @@ const SignupRight = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSignup = (event) => {
+  const handleSignup = async (event) => {
     event.preventDefault();
-    dispatch(userSignupAction(formData));
+    await dispatch(userSignupAction(formData));
   };
 
   return (

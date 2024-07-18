@@ -12,6 +12,7 @@ import Authenticated from "./utils/Authenticated";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import { Toaster } from "react-hot-toast";
+import DownloadHistoryPage from "./pages/DownloadHistoryPage";
 
 function App() {
   const userData = useSelector((state) => state.user.user);
@@ -25,6 +26,7 @@ function App() {
           {" "}
           <Route path="/" element={<HomePage />} />
           <Route path="/expenses" element={<ExpenseLeaderboardPage />} />
+          <Route path="/download-history" element={<DownloadHistoryPage />} />
         </Route>
         <Route element={<RedirectIfAuthenticated />}>
           {" "}

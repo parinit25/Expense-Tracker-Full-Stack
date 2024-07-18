@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   getAllExpensesAction,
+  getDownloadHistoryAction,
   getLeaderboardAction,
   getMonthlyExpensesAction,
   getWeeklyExpensesAction,
@@ -14,6 +15,8 @@ const initialState = {
   filter: "all",
   monthlyExpenseData: [],
   weeklyExpenseData: [],
+  downloadHistory: [],
+  expenseToBeEdited: undefined,
 };
 
 const expenseSlice = createSlice({
@@ -25,6 +28,12 @@ const expenseSlice = createSlice({
     },
     changeFilter(state, action) {
       state.filter = action.payload;
+    },
+    addExpenseToBeEdited(state, action) {
+      state.expenseToBeEdited = action.payload;
+    },
+    closeExpenseToBeEdited(state, action) {
+      state.expenseToBeEdited = undefined;
     },
   },
   extraReducers: (builder) => {
@@ -45,8 +54,17 @@ const expenseSlice = createSlice({
       const response = action.payload;
       state.monthlyExpenseData = response.data;
     });
+    builder.addCase(getDownloadHistoryAction.fulfilled, (state, action) => {
+      const response = action.payload;
+      state.downloadHistory = response.data;
+    });
   },
 });
 
-export const { openExpenseDialogReducer, changeFilter } = expenseSlice.actions;
+export const {
+  openExpenseDialogReducer,
+  changeFilter,
+  addExpenseToBeEdited,
+  closeExpenseToBeEdited,
+} = expenseSlice.actions;
 export default expenseSlice.reducer;

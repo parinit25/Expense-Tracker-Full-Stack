@@ -44,8 +44,15 @@ export const getMonthlyExpensesAction = createAsyncThunk(
 );
 export const editExpenseAction = createAsyncThunk(
   "editExpenseAction",
-  async (newExpenseData) => {
-    const response = await apiExpenseService.editExpense(newExpenseData);
+  async ({ expenseId, newExpenseData, page, rowsPerPage }, thunkAPI) => {
+    const response = await apiExpenseService.editExpense(
+      expenseId,
+      newExpenseData
+    );
+    if (response.status === 200) {
+      thunkAPI.dispatch(getAllExpensesAction({ page, rowsPerPage }));
+      thunkAPI.dispatch(getLeaderboardAction());
+    }
     console.log(response, "edit");
     return response;
   }
@@ -73,6 +80,13 @@ export const downloadExpensesAction = createAsyncThunk(
   "downloadExpensesAction",
   async () => {
     const response = await apiExpenseService.downloadExpenses();
+    return response;
+  }
+);
+export const getDownloadHistoryAction = createAsyncThunk(
+  "getDownloadHistoryAction",
+  async () => {
+    const response = await apiExpenseService.getDownloadHistory();
     return response;
   }
 );

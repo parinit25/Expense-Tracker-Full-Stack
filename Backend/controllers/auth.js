@@ -108,7 +108,6 @@ exports.userLogin = async (req, res) => {
   }
 };
 
-//For generating new Access Token with help of new refresh token
 exports.refreshAccessToken = async (req, res) => {
   const { refreshToken, emailId } = req.body;
   if (!refreshToken || !emailId) {
@@ -431,6 +430,7 @@ exports.buyPremium = async (req, res) => {
       .json(new ApiError(500, "Internal server error", error));
   }
 };
+
 exports.updateTransactionStatus = async (req, res) => {
   const { orderId, paymentId } = req.body;
   const { id } = req.user;
@@ -467,7 +467,6 @@ exports.updateTransactionStatus = async (req, res) => {
   }
 };
 
-// Generating New Access Token //
 exports.generateAccessToken = (user) => {
   try {
     const userPayload = {
@@ -484,7 +483,6 @@ exports.generateAccessToken = (user) => {
   }
 };
 
-//Generating Refresh Token //
 exports.generateRefreshToken = async (user) => {
   try {
     const userPayload = {

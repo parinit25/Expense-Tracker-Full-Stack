@@ -16,4 +16,10 @@ router.get(
   premiumMiddleware.validatePremiumUser,
   premiumController.downloadExpenses
 );
+router.get(
+  "/download-history",
+  authMiddleware.validateAccessToken,
+  premiumMiddleware.validatePremiumUser,
+  premiumController.getDownloadHistory
+);
 module.exports = router;

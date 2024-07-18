@@ -35,11 +35,8 @@ const uploadToS3 = async (data, fileName) => {
 
 exports.downloadExpenses = async (req, res) => {
   let t;
-
   try {
-    // Start a new transaction
     t = await sequelize.transaction();
-
     const { id } = req.user;
     const expenses = await Expense.findAll({
       where: { userId: id },
@@ -93,5 +90,46 @@ exports.getLeaderboard = async (req, res) => {
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
     res.status(500).json(new ApiError(500, "Internal server error", error));
+  }
+};
+
+exports.getDownloadHistory = async (req, res) => {
+  const { id } = req.user;
+  try {
+    // Validate the user ID
+    if (!id) {
+      return res.status(400).json(new ApiError(400, "Invalid user ID", null));
+    }
+    // Fetch download history data
+    const downloadHistoryData = await DownloadHistory.findAll({
+      where: { userId: id },
+    });
+
+    // Check if download history data is empty
+    if (!downloadHistoryData || downloadHistoryData.length === 0) {
+      return res.status(404).json(
+        new ApiResponse(404, "No download history found", {
+          downloadHistoryData: [],
+          total: 0,
+        })
+      );
+    }
+    // Fetch the total count of download history entries
+    const totalHistoryData = await DownloadHistory.count({
+      where: { userId: id },
+    });
+    // Return the download history data and total count
+    return res.status(200).json(
+      new ApiResponse(200, "History fetched successfully", {
+        downloadHistoryData,
+        total: totalHistoryData,
+      })
+    );
+  } catch (err) {
+    // Log the error and return an internal server error response
+    console.error("Error fetching download history:", err);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", err.message));
   }
 };

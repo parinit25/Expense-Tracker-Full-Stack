@@ -46,8 +46,12 @@ class apiExpenseServices {
     }
   };
 
-  editExpense = async (newExpenseData) => {
-    const response = ApiHelper.put("/expenses/edit-expense", newExpenseData);
+  editExpense = async (expenseId, newExpenseData) => {
+    console.log(newExpenseData);
+    const response = ApiHelper.put(
+      `/expenses/edit-expense/${expenseId}`,
+      newExpenseData
+    );
     return response;
   };
 
@@ -64,6 +68,10 @@ class apiExpenseServices {
   };
   downloadExpenses = async () => {
     const response = ApiHelper.get("/premium/download-expenses");
+    return response;
+  };
+  getDownloadHistory = async () => {
+    const response = ApiHelper.get("/premium/download-history");
     return response;
   };
 }

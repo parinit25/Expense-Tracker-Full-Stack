@@ -5,14 +5,19 @@ import Slide from "@mui/material/Slide";
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../css/login.module.css";
-import { addNewExpenseAction } from "../../store/actions/asyncExpenseActions";
-import { openExpenseDialogReducer } from "../../store/reducers/expenseReducer";
+import { editExpenseAction } from "../../store/actions/asyncExpenseActions";
+import { closeExpenseToBeEdited } from "../../store/reducers/expenseReducer";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="right" ref={ref} {...props} />;
 });
 
-export default function AddExpenseForm() {
+export default function EditExpenseForm({ page, rowsPerPage }) {
+  const dispatch = useDispatch();
+  const expenseToBeEdited = useSelector(
+    (state) => state.expense.expenseToBeEdited
+  );
+
   const [formData, setFormData] = React.useState({
     expenseTitle: "",
     expenseDescription: "",
@@ -20,12 +25,24 @@ export default function AddExpenseForm() {
     expenseCategory: "",
     expenseDate: "",
   });
-  const openDialog = useSelector((state) => state.expense.openExpenseDialog);
-  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    if (expenseToBeEdited) {
+      setFormData({
+        expenseTitle: expenseToBeEdited.title,
+        expenseDescription: expenseToBeEdited.description,
+        expenseAmount: expenseToBeEdited.amount,
+        expenseCategory: expenseToBeEdited.category,
+        expenseDate: expenseToBeEdited.date,
+      });
+    }
+  }, [expenseToBeEdited]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };
+
   const onSubmit = (e) => {
     e.preventDefault();
     const expense = {
@@ -36,29 +53,25 @@ export default function AddExpenseForm() {
       date: formData.expenseDate,
     };
 
-    dispatch(addNewExpenseAction(expense));
-    setFormData({
-      expenseTitle: "",
-      expenseDescription: "",
-      expenseAmount: 0,
-      expenseCategory: "",
-      expenseDate: "",
-    });
+    dispatch(
+      editExpenseAction({
+        expenseId: expenseToBeEdited.id,
+        newExpenseData: expense,
+        page: page,
+        rowsPerPage: rowsPerPage,
+      })
+    );
     handleClose();
   };
 
-  const handleClickOpen = () => {
-    dispatch(openExpenseDialogReducer());
-  };
-
   const handleClose = () => {
-    dispatch(openExpenseDialogReducer());
+    dispatch(closeExpenseToBeEdited());
   };
 
   return (
     <React.Fragment>
       <Dialog
-        open={openDialog}
+        open={expenseToBeEdited !== undefined}
         TransitionComponent={Transition}
         keepMounted
         onClose={handleClose}
@@ -67,9 +80,10 @@ export default function AddExpenseForm() {
         <DialogContent>
           <div className={styles["login-form"]}>
             <form onSubmit={onSubmit}>
-              <p className={styles["login-text-1"]}>Add Expense</p>
+              <p className={styles["login-text-1"]}>Edit Expense</p>
               <p className={styles["login-text-2"]}>
-                Enter the details below to add the expense
+                Edit the values of the expense you want to alter and click
+                submit
               </p>
               <hr className={styles["divider"]} />
               <div className={styles["input-box"]}>
@@ -80,6 +94,7 @@ export default function AddExpenseForm() {
                   placeholder="Title"
                   className={styles["login-input"]}
                   onChange={handleChange}
+                  value={formData.expenseTitle}
                 />
               </div>
               <div className={styles["input-box"]}>
@@ -90,6 +105,7 @@ export default function AddExpenseForm() {
                   placeholder="Description"
                   className={styles["login-input"]}
                   onChange={handleChange}
+                  value={formData.expenseDescription}
                 />
               </div>
               <div className={styles["input-box"]}>
@@ -100,6 +116,7 @@ export default function AddExpenseForm() {
                   placeholder="Amount"
                   className={styles["login-input"]}
                   onChange={handleChange}
+                  value={formData.expenseAmount}
                 />
               </div>
               <div className={styles["input-box"]}>
@@ -131,15 +148,17 @@ export default function AddExpenseForm() {
                   placeholder="Date"
                   className={styles["login-input"]}
                   onChange={handleChange}
+                  value={formData.expenseDate}
                 />
               </div>
               <div className={styles["btn-container"]}>
                 <button className={`${styles["submit-btn"]}`}>
-                  Add Expense
+                  Edit Expense
                 </button>
                 <button
                   className={`${styles["cancel-btn"]}`}
                   onClick={handleClose}
+                  type="button"
                 >
                   Cancel
                 </button>
