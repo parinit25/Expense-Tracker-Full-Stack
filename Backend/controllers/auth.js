@@ -169,7 +169,7 @@ exports.resetPasswordSendMail = async (req, res) => {
       isActive: true,
       generatedToken: token,
     });
-    const resetLink = `http://localhost:3001/reset-password?token=${token}`;
+    const resetLink = `https://main.d2n49m3ksydtg8.amplifyapp.com/reset-password?token=${token}`;
     let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
